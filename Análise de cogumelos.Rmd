@@ -1,0 +1,107 @@
+Previsão de classe utilizando Árvore de Decisão
+https://www.kaggle.com/uciml/mushroom-classification
+
+Classificação de cogumelos como sendo venenosos ou comestíveis a partir de suas
+características
+
+
+```{r}
+# Importação do arquivo csv
+data <- read.csv("mushrooms.csv")
+data
+```
+
+Separação de dados de treino e teste
+```{r}
+#----------------------------------------
+# Método Hold-Out para separação de dados
+#----------------------------------------
+# é criada uma amostra de 1.000 números contendo os números 1 e 2
+# com o número 1 com uma maior probabilidade de ocorrência 70% e
+# com o número 2 com uma menor probabilidade de ocorrência 30%
+amostra = sample(2,1000, replace = T, prob = c(0.7,0.3))
+# Aqui é criada uma variavel "treino" contendo 70% de dados aleatórios do 
+# dataframe original
+treino = data[amostra == 1,]
+# E aqui cotendo 30%
+teste = data[amostra == 2,]
+
+#---------------------------------------
+# Criação do modelo de árvore de decisão
+#---------------------------------------
+# Utilização da biblioteca rpart
+library(rpart)
+# criando a arvore de decisão:
+# class é o que queremos prever e " ~ ." significa todas as outras variáveis
+# que iremos utilizar para prever a class
+# utilização do método "class" para classificação
+arvore = rpart(class ~ ., data = treino, method = "class")
+plot(arvore) # visualização do esqueleto da arvore de decisão
+# Execução em bloco dos dois comandos abaixo para visualizar os pesos da árvore
+plot(arvore, cex.lab = 1, cex.axis = 1, cex.main = 1, cex.sub = 1)
+text(arvore, use.n = TRUE, all = TRUE, cex = .8)
+
+#---------------------------------------
+# Previsão dos dados
+#---------------------------------------
+# aqui o algoritmo inicia a previsão das classes dos cogumelos a partir
+# do modelo de árvore de decisão criado com 70% dos dados do dataframe
+prev = predict(arvore, newdata = teste)
+prev <- data.frame(prev)
+head(prev) # Probabilidades de classificação
+# quanto maior, maior é a chance de ser de ser de tal classe
+
+# Armazenando em uma variavel x, o resultado da previsão
+# ifelse -> se a classe "e" obteve probabilidade acima de 50%, será "e"
+# mesma coisa para a classe "p"
+x <- ifelse(prev$e >= 0.5, "e", "p") 
+x <- data.frame(x)
+
+# Armazenando em uma variavel y, os dados originais que não foram utilizados
+# para comparação de previsão!
+y <- teste$class
+
+
+# ambos necessitam estar no mesmo formato
+x # forma de character
+y # forma de character
+
+
+# Criação de uma tabela de confusão para comparar os resultados obtidos:
+confusao = table(x, y)
+confusao
+#     e       p
+#  e  1335   15
+#  p    0    1243
+#
+# 1335 cogumelos foram previstos como sendo "comestíveis" com sucesso
+# 1243 cogumelos foram previstos como sendo "venenosos" com sucesso
+# apenas 15 cogumelos previstos como "comestíveis" eram "venenosos"
+
+# Calculo da taxa de acerto
+# soma dos acertados (1335 + 1243) divido pelo total
+taxaacerto = (confusao[1] + confusao[4]) / sum(confusao)
+taxaacerto
+# 99.4% de precisão!
+# Quando for comer cogumelos selvagens e quiser utilizar esse algoritmo
+# sua chance de envenenamento é de apenas 0.06% :D
+
+
+#---------------------------------------
+# Como usar o modelo
+#---------------------------------------
+# Primeiro escreva as características encontradas num arquivo em formato csv
+# seguindo a ordem de característica das colunas
+
+# Adicione o objeto ao argumento "newdata" na aba de previsão e repita todo o 
+# processo
+
+
+
+
+
+
+
+
+```
+
