@@ -1,0 +1,58 @@
+Árvores de Decisão para Regressão
+
+```{r}
+# pacote para criar a arvore de decisao
+install.packages("rpart")
+# pacote para gerar métrica da performance do modelo
+install.packages("forecast")
+library(rpart)
+```
+Conjunto de Dados
+```{r}
+iris
+```
+Criamos o modelo prevendo Sepal.Length
+```{r}
+# Variavel Dependente = aquilo que eu quero prever
+# Variavel Independente = 
+# rpart (Vd ~ Vi + Vi + Vi)
+modelo = rpart(Sepal.Length ~ Sepal.Width + Petal.Length+ Species, data = iris)
+modelo
+summary(modelo)
+```
+Visualização
+```{r}
+#Execução em blocos
+plot(modelo)
+text(modelo)
+```
+Previsão
+```{r}
+# modelo = algoritmo treinado (arvore)
+predicao = predict(modelo, iris)
+head(predicao)
+```
+Comparamos previsão com dados reais
+```{r}
+# comparar o valor real e o previsto
+# cria coluna com cbind ( subtração da previsão com o valor real)
+comparacao = cbind(predicao, iris$Sepal.Length, predicao - iris$Sepal.Length)
+head(comparacao)
+# valor previsto - valor real
+```
+Verificamos métricas de erro de nosso modelo
+```{r}
+# accuracy(previsão, valores reais)
+# IE (Independente de Escala)
+# DE (Dependente de Escala)
+accuracy(predicao, iris$Sepal.Length)
+# ME -> Mean Error (média da diferença entre realizado e previsto)
+# RMSE -> Root Mean Squared Error (dp da amostra da diferença entre o previsto e o teste) *IE*
+# MPE -> Mean Percentage Error (Diferença percentual de erro) (realizado - previsto) / realizado * 100 *IE*
+# MAPE -> Mean Absolute Percentage Error (Diferença absoluta percentual erro) *IE*
+# MAE -> Mean Absolute Error (Média da diferença absoluta entre o previsto e o realizado) *DE*
+
+
+# Estatísitca II
+```
+

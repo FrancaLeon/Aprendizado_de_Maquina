@@ -1,0 +1,71 @@
+Árvore de Decisão para Classificação (Hold Out method)
+
+```{r}
+library(rpart)
+```
+
+Carrega dados de crédito e separa em treino e teste
+```{r}
+credito = read.csv("Credit.csv")
+credito
+# criação de amostras!
+amostra = sample(2,1000, replace = T, prob = c(0.7,0.3))
+# 70% para amostra 1
+creditotreino = credito[amostra == 1,]
+# 30% para amostra 2
+creditoteste = credito[amostra == 2,]
+```
+
+Cria modelo, método para classificação
+```{r}
+# ~ separa a variável dependente das independentes!
+# ao usar . usa todas as outras variáveis como dependentes para prever classe
+# data = amostra de 70% para o treino
+# method = 
+arvore = rpart(class ~ ., data = creditotreino, method = "class")
+print(arvore) # árvore bruta
+```
+
+Impressão da árvore
+```{r}
+# Execução em bloco
+plot(arvore, cex.lab = 1, cex.axis = 1, cex.main = 1, cex.sub = 1)
+text(arvore, use.n = TRUE, all = TRUE, cex = .8)
+```
+
+Previsao
+```{r}
+# Testando o modelo com 30% dos dados "desconhecidos"
+# modelo = arvore
+# newdata = dados para a previsao
+teste = predict(arvore, newdata = creditoteste)
+head(teste)
+# o teste pula pois não há todas as variáveis (30%)!
+```
+
+Adiciona a coluna de teste a creditoteste
+```{r}
+# Comparação do resultado provido do teste com o real:
+cred = cbind(creditoteste, teste)
+cred
+# mas ainda não é possível comparar direito, pois teria que ser verificado manualmente
+```
+
+Cria coluna com resultado categórico
+```{r}
+# se a coluna "bad" for >= 0.5, classificar como "bad", se não "good"
+cred['Result'] = ifelse(cred$bad>=0.5, "bad", "good") # coluna "result" é a previsão
+cred # lembrando que são dados de TESTE! Ou seja, 30 %
+```
+
+Matriz de Confusão
+```{r}
+# cred$class = informação real
+# cred$Result = informação prevista
+confusao = table(cred$class, cred$Result)
+confusao
+# soma a posição 1 (falsos positivos) + (verdadeiros positivos) / (total)
+taxaacerto = (confusao[1] + confusao[4]) / sum(confusao)
+taxaacerto # resultado importante! acerto do programa
+```
+

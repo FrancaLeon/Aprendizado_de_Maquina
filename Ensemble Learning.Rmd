@@ -1,0 +1,54 @@
+Ensamble Learning
+
+
+```{r}
+#install.packages("randomForest")
+library(randomForest)
+```
+
+```{r}
+credito = read.csv('credit.csv')
+# fatorização das classes
+credito$class = as.factor(credito$class)
+head(credito)
+```
+
+Separa dados de treino e teste
+
+```{r}
+amostra = sample(2,1000,replace = T,prob = c(0.7,0.3))
+creditotreino = credito[amostra==1,]
+creditoteste = credito[amostra==2,]
+```
+
+Gera o modelo
+
+```{r}
+# randomForest() cria conjuntos de dados de treino de forma aleatória porém com reposição!
+# conhecido também como Bootstrap
+
+# ntree -> número de árvores geradas
+# importance = T -> verifica as importâncias dos atributos (seleciona os principais)
+
+floresta = randomForest(class ~., data = creditotreino, ntree = 100, importance = T)
+floresta
+plot(floresta)
+```
+
+Previsão
+
+```{r}
+# usa a floresta gerada para comparação com os dados de teste
+previsao = predict(floresta, creditoteste)
+previsao
+confusao = table(previsao,creditoteste$class)
+confusao
+```
+
+Avaliação de Performance
+```{r}
+taxaacerto = (confusao[1] + confusao[4]) / sum(confusao)
+taxaacerto
+
+```
+

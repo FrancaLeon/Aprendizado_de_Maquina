@@ -1,0 +1,48 @@
+Fuzzy Clustering (Fuzzy C-Means)
+Faz o agrupamento na forma de uma associação que não é absoluta (que nem o K-means)
+Diz como cada instância pertence a cada grupo por percentual
+
+```{r}
+install.packages("factoextra")
+install.packages("e1071")
+install.packages("RColorBrewer")
+library(factoextra)
+library(e1071)
+library(RColorBrewer)
+```
+
+Geração do cluster Fuzzy
+
+```{r}
+# Numera as probabilidades de classificação de cada instância 
+# centers = número de classificações, iris no caso, setosa ou virginica ou versicolor
+cluster = cmeans(iris[,1:4], centers = 3)
+cluster$membership
+# ^ cluster gerado ^
+```
+
+Visualização membership com heatmap
+
+```{r}
+# cluster -> variável do cluster gerado anteriormente
+# Colv e Rowv -> informação extra
+# col -> paleta de cores
+heatmap(cluster$membership,Colv = NA,Rowv = NA, col = brewer.pal(n = 9, name = "YlOrRd"))
+# cores mais fortes indicam percentuais maiores de probabilidade de classificação
+```
+
+Matriz de confusão
+
+```{r}
+table(iris$Species, cluster$cluster)
+```
+
+Visualização com factoextra
+
+```{r}
+# biblioteca especializada em visualização dos clusteres
+g = fviz_cluster(list(data = iris[,1:4], cluster = cluster$cluster), ellipse.type = "norm", ggtheme = theme_bw(),
+                 main = "Cluster")
+plot(g)
+```
+

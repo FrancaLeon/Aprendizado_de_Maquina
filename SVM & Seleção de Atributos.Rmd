@@ -1,0 +1,74 @@
+Seleção de Atributos
+
+Máquina de Vetor de Suporte (SVM)
+
+```{r}
+#install.packages("e1071")
+#install.packages("randomForest")
+install.packages("randomForest")
+library(e1071)
+library(randomForest)
+
+# importar BD
+credito = read.csv("Credit.csv")
+# fatorização das classes
+credito$class = as.factor(credito$class)
+```
+
+Divisão de dados (treino & teste) com o uso de seeds
+
+```{r}
+set.seed(234)
+# o sample tem o mesmo número de linhas do DB
+amostra = sample(2,1000,replace = T,prob = c(0.7,0.3))
+creditotreino = credito[amostra==1,]
+creditoteste = credito[amostra==2,]
+```
+
+Criação do modelo com todos os atributos
+Avaliamos a acurácia
+
+```{r}
+# cria o modelo com 70% do DB com o método SVM
+# usa todos os atributos para prever a classe "~."
+modelo = svm(class ~., creditotreino)
+# usa o modelo para previsão dos 30% restantes do DB
+predicao = predict(modelo, creditoteste)
+# teste de confusão
+confusao = table(creditoteste$class, predicao)
+taxaacerto = (confusao[1] + confusao[4]) / sum(confusao)
+taxaacerto
+```
+
+Aplicamos um método de seleção de atributos
+
+```{r}
+# Define as variáveis mais importantes do DB!
+# Gini -> técnica de medição de pureza, usada em árvores de decisão
+importancia = randomForest(class ~., data = creditotreino)
+col = importance(importancia)
+col
+varImpPlot(importancia)
+```
+
+Criamos um segundo modelo com as variáveis independentes mais importantes
+
+```{r}
+# criação do segundo modelo com o subconjunto de variáveis mais importantes descobertas acima
+modelo2 = svm(class ~ credit_amount + age + duration + checking_status, creditotreino)
+predicao2 = predict(modelo2,creditoteste)
+confusao2 = table(creditoteste$class, predicao2)
+taxaacerto2 = (confusao2[1] + confusao2[4]) / sum(confusao2)
+taxaacerto2
+
+
+
+
+```
+```{r}
+taxaacerto
+taxaacerto2
+# a perfomance o segundo modelo é melhor!
+```
+
+

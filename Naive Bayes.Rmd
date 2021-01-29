@@ -1,0 +1,66 @@
+Naive Bayes Method
+
+```{r}
+install.packages("e1071")
+library(e1071)
+```
+
+Dados de crédito de Banco Alemão
+
+```{r}
+credito = read.csv("Credit.csv")
+head(credito)
+dim(credito)
+```
+
+É necessária a transformação da classe em um fator
+
+```{r}
+credito$class = as.factor(credito$class)
+```
+
+Separação dos dados de treino e teste
+
+```{r}
+# a dimensão do DB é 1000 linhas, logo o sample terá de divir essa quantidade
+# a probabilidade define separa 70% e 30% dos dados totais
+amostra = sample(2, 1000, replace = T, prob = c(0.7,0.3))
+amostra #mil uns e dois
+creditotreino = credito[amostra==1,] # conjunto para treinar o modelo
+creditoteste = credito[amostra==2,] # conjunto para testar o modelo
+
+# Dimensões dos conjuntos acima:
+dim(creditotreino)
+dim(creditoteste)
+```
+
+Criando o modelo
+
+```{r}
+# naiveBayes (VariávelDePrevisão ~., dataset de treinamento)
+modelo = naiveBayes(class ~., creditotreino)
+modelo
+```
+
+Previsão
+
+```{r}
+predicao = predict(modelo,creditoteste) # inicia a previsão dos valores de teste
+predicao
+# e retorna as linhas testadas (que o algoritmo não conhecia) dos dados originais
+```
+
+Matriz de Confusão
+```{r}
+# comparar a coluna class do teste com a previsão feita
+confusao = table(creditoteste$class, predicao)
+confusao
+# (Falsos Negativo + Verdadeiros Positivos) / total
+taxaacerto = (confusao[1] + confusao[4]) / sum(confusao)
+# (Verdadeiros Negativos + Falsos Positivos) / total
+taxaerro = (confusao[2] + confusao[3]) / sum(confusao)
+taxaacerto # 74% de acerto
+taxaerro # 26% de erro
+```
+
+

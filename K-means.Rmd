@@ -1,0 +1,54 @@
+Clusters
+Atribui cada instância à um grupo, de forma absoluta!
+K-means   (não produz ruídos porque agrupa tudo)
+
+```{r}
+install.packages("factoextra")
+library(factoextra)
+```
+
+Conjunto de dados iris
+
+```{r}
+iris[1:4]
+```
+
+Gerando o cluster
+```{r}
+#criando o agrupamento
+cluster = kmeans(iris[1:4], centers = 3)
+
+cluster
+
+table(iris$Species, cluster$cluster)
+```
+
+Gráfico
+```{r}
+# plot tamanho e largura da sepala, color = clusters
+plot(iris$Sepal.Length, iris$Sepal.Width, col = cluster$cluster, pch = 20, main = "iris")
+plot(iris[,1:4], col= cluster$cluster, main = "iris")
+```
+
+Gráfico especializado
+```{r}
+#  tipo de elipse = convex, norm
+g2 = fviz_cluster(cluster, data=iris[1:4], ellipse.type = "convex", ggtheme = theme_bw(), main = "Cluster")
+plot(g2)
+
+
+```
+
+Adicionamos o cluster aos dados originais
+
+```{r}
+iris2 = iris
+# chamando o cluster de grupos
+iris2['grupos'] = cluster$cluster
+iris2
+# para salvar o processo:
+# write.csv(iris2,"iri2.csv")
+
+
+```
+
